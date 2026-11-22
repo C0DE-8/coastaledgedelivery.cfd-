@@ -20,7 +20,7 @@ function ShipmentMap({ shipment, trackerNumber }) {
     <a className="shipment-map-canvas" href={mapUrl} target="_blank" rel="noreferrer" aria-label={`Open map for shipment ${trackerNumber}`}>
       <div className="shipment-map-grid" aria-hidden="true"/>
       <svg className="shipment-map-route" viewBox="0 0 1000 340" preserveAspectRatio="none" aria-hidden="true"><path d="M 80 260 C 240 220, 290 75, 465 145 S 710 285, 920 90"/><path className="shipment-map-route-dash" d="M 80 260 C 240 220, 290 75, 465 145 S 710 285, 920 90"/></svg>
-      <span className="shipment-map-watermark">GLOBAL ACCESS <small>SHIPMENT VISIBILITY</small></span>
+      <span className="shipment-map-watermark">COASTAL EDGE <small>SHIPMENT VISIBILITY</small></span>
       {pins.map((point, index) => <span key={point.key} className={`shipment-map-pin ${point.key}`} style={{ left: `${12 + index * (76 / Math.max(pins.length - 1, 1))}%`, top: `${point.key === 'origin' ? '74%' : point.key === 'destination' ? '27%' : '44%'}` }}><i>{point.key === 'origin' ? '1' : point.key === 'destination' ? '3' : '2'}</i><b>{point.label}</b><small>{point.place || 'Coordinates available'}</small></span>)}
       {!pins.length && <span className="shipment-map-empty">Route details will appear here as your shipment is updated.</span>}
       <span className="shipment-map-zoom" aria-hidden="true">＋<br/>−</span>

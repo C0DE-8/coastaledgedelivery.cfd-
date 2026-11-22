@@ -70,7 +70,7 @@ export default function Home({ onNavigate }) {
   return <><section className="hero hero-video-hero">
     <div className="hero-visual hero-background" ref={heroBackgroundRef} aria-hidden="true">
       <div className="hero-fallback" />
-      {videoRequested && !videoFailed && <iframe id="hero-youtube-video" className={`hero-video${videoPlaying ? ' is-playing' : ''}`} src="https://www.youtube-nocookie.com/embed/MmOLhcib0jI?autoplay=1&mute=1&controls=0&disablekb=1&loop=1&playlist=MmOLhcib0jI&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&fs=0&enablejsapi=1" title="Global Access Agency Company logistics video" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
+      {videoRequested && !videoFailed && <iframe id="hero-youtube-video" className={`hero-video${videoPlaying ? ' is-playing' : ''}`} src="https://www.youtube-nocookie.com/embed/MmOLhcib0jI?autoplay=1&mute=1&controls=0&disablekb=1&loop=1&playlist=MmOLhcib0jI&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&fs=0&enablejsapi=1" title="Coastal Edge Delivery logistics video" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
       <div className="hero-video-shade" />
     </div>
     <div className="hero-copy hero-text-slider">
