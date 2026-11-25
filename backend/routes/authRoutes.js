@@ -86,7 +86,7 @@ router.post("/login", async (req, res, next) => {
     const cleanEmail = String(email).trim().toLowerCase();
 
     // ✅ expects users table has role column OR defaults admin check later
-    const [rows] = await db.query(
+    const rows = await db.query(
       "SELECT id, email, password, role FROM users WHERE email = ? LIMIT 1",
       [cleanEmail]
     );
@@ -137,7 +137,7 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ message: "Password must be at least 6 characters." });
     }
 
-    const [exists] = await db.query("SELECT id FROM users WHERE email=? LIMIT 1", [cleanEmail]);
+    const exists = await db.query("SELECT id FROM users WHERE email=? LIMIT 1", [cleanEmail]);
     if (exists.length) {
       return res.status(409).json({ message: "Admin account with this email already exists." });
     }
@@ -183,7 +183,7 @@ router.post("/change-password", authenticate, async (req, res, next) => {
 
     const userId = Number(req.user.userId);
 
-    const [rows] = await db.query("SELECT id, password, role FROM users WHERE id=? LIMIT 1", [
+    const rows = await db.query("SELECT id, password, role FROM users WHERE id=? LIMIT 1", [
       userId,
     ]);
     if (!rows.length) return res.status(404).json({ message: "Admin not found." });
@@ -225,7 +225,7 @@ router.post("/reset-password", async (req, res, next) => {
 
     const cleanEmail = String(email).trim().toLowerCase();
 
-    const [rows] = await db.query(
+    const rows = await db.query(
       "SELECT id, role FROM users WHERE email=? LIMIT 1",
       [cleanEmail]
     );
@@ -250,7 +250,7 @@ router.get("/me", authenticateToken, async (req, res, next) => {
   try {
     const userId = Number(req.user.userId);
 
-    const [rows] = await db.query(
+    const rows = await db.query(
       `SELECT id, email, role, created_at
        FROM users
        WHERE id = ?

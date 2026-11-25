@@ -1,12 +1,15 @@
 const dotenv = require("dotenv");
-dotenv.config(); // ✅ load env FIRST
+const path = require("node:path");
+dotenv.config({
+  path: [path.join(__dirname, ".env.local"), path.join(__dirname, ".env")],
+});
 
 const express = require("express");
 const cors = require("cors");
 
 const packageRoutes = require("./routes/packageRoutes");
 const authRoutes = require("./routes/authRoutes");
-require("./db"); // ✅ ensure DB initializes after env is loaded
+const db = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 5009;
@@ -24,6 +27,15 @@ app.get("/", (req, res) => {
   res.send({ message: "Welcome to the Package Shipping API" });
 });
 
+app.get("/health", async (req, res) => {
+  try {
+    const status = await db.status();
+    res.json({ ok: true, gateway: status });
+  } catch (error) {
+    res.status(503).json({ ok: false, error: error.message });
+  }
+});
+
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -36,5 +48,5 @@ app.use((err, req, res, next) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`✅ DB: ${process.env.DB_NAME} @ ${process.env.DB_HOST}`);
+  console.log(`✅ DBMS Gateway configured at ${db.dbmsUrl}`);
 });

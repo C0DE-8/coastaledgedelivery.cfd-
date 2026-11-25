@@ -1,7 +1,7 @@
 // routes/packageRoutes.js
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const db = require("../db"); // promise-based MySQL pool
+const db = require("../db");
 
 const router = express.Router();
 
@@ -98,7 +98,7 @@ router.post("/create-package", authenticateToken, async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] = await db.query(insertQuery, [
+    await db.query(insertQuery, [
       tracker_number,
       sender_name,
       sender_address,
@@ -111,11 +111,18 @@ router.post("/create-package", authenticateToken, async (req, res) => {
       packageStatus,
       finalPackageInfo,
     ]);
+    const [createdPackage] = await db.query(
+      "SELECT id FROM packages WHERE tracker_number = ?",
+      [tracker_number]
+    );
+    if (!createdPackage) {
+      throw new Error("Created package could not be retrieved from the database");
+    }
 
     return res.status(201).json({
       message: "Package created successfully!",
       package: {
-        id: result.insertId,
+        id: createdPackage.id,
         tracker_number,
         sender_name,
         sender_address,
@@ -155,7 +162,7 @@ router.put("/package/:tracker_number", authenticateToken, async (req, res) => {
   } = req.body || {};
 
   try {
-    const [existing] = await db.query("SELECT * FROM packages WHERE tracker_number = ?", [
+    const existing = await db.query("SELECT * FROM packages WHERE tracker_number = ?", [
       tracker_number,
     ]);
 
@@ -206,7 +213,7 @@ router.put("/package/:tracker_number", authenticateToken, async (req, res) => {
 // ─── PROTECTED ROUTE: Get all tracker numbers with their ids ───
 router.get("/", authenticateToken, async (req, res) => {
   try {
-    const [results] = await db.query("SELECT id, tracker_number FROM packages ORDER BY id DESC");
+    const results = await db.query("SELECT id, tracker_number FROM packages ORDER BY id DESC");
 
     if (results.length === 0) {
       return res.status(404).json({ message: "No packages found" });
@@ -228,7 +235,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [results] = await db.query("SELECT * FROM packages WHERE id = ?", [id]);
+    const results = await db.query("SELECT * FROM packages WHERE id = ?", [id]);
 
     if (results.length === 0) {
       return res.status(404).json({ message: "Package not found." });
@@ -245,7 +252,7 @@ router.delete("/package/:tracker_number", authenticateToken, async (req, res) =>
   const { tracker_number } = req.params;
 
   try {
-    const [existing] = await db.query("SELECT id FROM packages WHERE tracker_number = ?", [
+    const existing = await db.query("SELECT id FROM packages WHERE tracker_number = ?", [
       tracker_number,
     ]);
 
@@ -268,7 +275,7 @@ router.delete("/package/:tracker_number", authenticateToken, async (req, res) =>
 // ─── PUBLIC: Get all tracker numbers with their ids (no auth) ───
 router.get("/no/hidden", async (req, res) => {
   try {
-    const [results] = await db.query("SELECT id, tracker_number FROM packages ORDER BY id DESC");
+    const results = await db.query("SELECT id, tracker_number FROM packages ORDER BY id DESC");
 
     if (results.length === 0) {
       return res.status(404).json({ message: "No packages found" });
@@ -293,7 +300,7 @@ router.get("/package/:tracker_number", async (req, res) => {
   const { tracker_number } = req.params;
 
   try {
-    const [rows] = await db.query("SELECT * FROM packages WHERE tracker_number = ?", [
+    const rows = await db.query("SELECT * FROM packages WHERE tracker_number = ?", [
       tracker_number,
     ]);
 
@@ -315,7 +322,7 @@ router.get("/package/:tracker_number/updates", async (req, res) => {
   const { tracker_number } = req.params;
 
   try {
-    const [updates] = await db.query(
+    const updates = await db.query(
       `SELECT id, update_message, location, created_at
        FROM package_updates
        WHERE tracker_number = ?
@@ -343,7 +350,7 @@ router.post("/package/:tracker_number/update", authenticateToken, async (req, re
       return res.status(400).json({ message: "update_message is required." });
     }
 
-    const [pkg] = await db.query(
+    const pkg = await db.query(
       "SELECT tracker_number FROM packages WHERE tracker_number = ?",
       [tracker_number]
     );
@@ -375,7 +382,7 @@ router.put("/package/updates/:id", authenticateToken, async (req, res) => {
   const { update_message, location, created_at } = req.body || {};
 
   try {
-    const [rows] = await db.query("SELECT * FROM package_updates WHERE id = ?", [id]);
+    const rows = await db.query("SELECT * FROM package_updates WHERE id = ?", [id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: "Update not found." });
     }
@@ -410,7 +417,7 @@ router.delete("/package/updates/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [rows] = await db.query("SELECT id FROM package_updates WHERE id = ?", [id]);
+    const rows = await db.query("SELECT id FROM package_updates WHERE id = ?", [id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: "Update not found." });
     }
